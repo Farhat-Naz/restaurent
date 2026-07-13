@@ -13,7 +13,7 @@ export const STATUS_LABELS: Record<string, string> = {
   PREPARING: "Preparing",
   READY: "Ready",
   OUT_FOR_DELIVERY: "Out for Delivery",
-  DELIVERED: "Delivered",
+  DELIVERED: "Completed",
   CANCELLED: "Cancelled",
 };
 

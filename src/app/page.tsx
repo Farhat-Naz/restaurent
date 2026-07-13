@@ -1,9 +1,9 @@
 import Link from "next/link";
 import {
-  Bike,
   CalendarCheck,
   ChefHat,
   Clock,
+  ShoppingBag,
   Sparkles,
   TicketPercent,
 } from "lucide-react";
@@ -46,17 +46,17 @@ export default async function HomePage() {
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 md:grid-cols-2 md:py-24">
           <div className="space-y-6">
             <Badge variant="secondary" className="gap-1.5">
-              <Sparkles className="size-3.5 text-primary" /> Now delivering across Springfield
+              <Sparkles className="size-3.5 text-primary" /> Order online, skip the queue
             </Badge>
             <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl lg:text-6xl">
               Honest food,
               <br />
-              <span className="text-primary">delivered warm.</span>
+              <span className="text-primary">served warm.</span>
             </h1>
             <p className="max-w-md text-lg text-muted-foreground">
               Smash burgers, wood-fired pizza, and slow-cooked classics — made
-              fresh daily at The Golden Fork. Order in minutes, track it to
-              your door.
+              fresh daily at The Golden Fork. Order ahead and pick it up hot,
+              or reserve a table and dine with us.
             </p>
             <div className="flex flex-wrap gap-3">
               <Button size="lg" render={<Link href="/menu" />}>
@@ -68,10 +68,10 @@ export default async function HomePage() {
             </div>
             <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
               <span className="flex items-center gap-1.5">
-                <Clock className="size-4 text-primary" /> 30 min avg delivery
+                <Clock className="size-4 text-primary" /> Ready in ~20 min
               </span>
               <span className="flex items-center gap-1.5">
-                <Bike className="size-4 text-primary" /> Free delivery over $35
+                <ShoppingBag className="size-4 text-primary" /> No fees — order & pick up
               </span>
               <span className="flex items-center gap-1.5">
                 <ChefHat className="size-4 text-primary" /> Fresh, never frozen
@@ -165,8 +165,8 @@ export default async function HomePage() {
               every morning and sources produce from farms within 50 miles.
             </p>
             <p className="text-muted-foreground">
-              Today we serve thousands of guests a month — in our dining room
-              and at doorsteps across the city — without cutting a single
+              Today we serve thousands of guests a month in our dining room —
+              and pack thousands of pickup orders — without cutting a single
               corner on the food.
             </p>
             <Button variant="outline" render={<Link href="/reservations" />}>

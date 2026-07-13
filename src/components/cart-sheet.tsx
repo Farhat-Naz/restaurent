@@ -122,7 +122,7 @@ export function CartSheet() {
                 <span className="text-base font-bold">{formatCurrency(subtotal)}</span>
               </div>
               <p className="text-xs text-muted-foreground">
-                Taxes, delivery and discounts calculated at checkout.
+                Taxes and discounts calculated at checkout.
               </p>
               <Button
                 size="lg"

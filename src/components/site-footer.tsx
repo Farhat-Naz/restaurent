@@ -14,8 +14,8 @@ export function SiteFooter() {
             The Golden Fork
           </div>
           <p className="text-sm text-muted-foreground">
-            Honest food, warm hospitality. Serving Springfield since 2012 — now
-            delivering to your door.
+            Honest food, warm hospitality. Serving Springfield since 2012 —
+            dine in, or order ahead for pickup.
           </p>
         </div>
         <div className="space-y-3 text-sm">

@@ -6,8 +6,8 @@ import { STATUS_LABELS } from "@/lib/order-status";
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
 const RESTAURANT_INFO = `The Golden Fork — 128 Ember Lane, Springfield. Phone +1 (555) 012-3456.
-Open Mon–Sun 11:00 AM – 11:00 PM. Delivery (30–45 min, free over $35, otherwise $3.99) and pickup (~20 min).
-Payments: Cash on Delivery or Pay at Restaurant. Table reservations at /reservations. Track orders at /track.
+Open Mon–Sun 11:00 AM – 11:00 PM. Pickup orders only (ready in ~20 min) — no delivery service. Dine-in available.
+Payments: pay at pickup (card or cash) or online by card. Table reservations at /reservations. Track orders at /track.
 Active coupons: WELCOME10 (10% off, $20 min), FLAT5 ($5 off, $30 min), GOLDEN20 (20% off, $50 min).`;
 
 export async function POST(req: Request) {
@@ -121,10 +121,10 @@ async function ruleBasedReply(text: string): Promise<string> {
     return `Current offers: ${coupons.map((c) => `${c.code} — ${c.type === "PERCENT" ? `${c.value}% off` : `${formatCurrency(c.value)} off`} (min ${formatCurrency(c.minSubtotal)})`).join("; ")}. Apply them at checkout!`;
   }
   if (/(deliver|shipping|how long|delivery fee)/.test(q)) {
-    return "Delivery takes 30–45 minutes. It's $3.99, or free on orders over $35. Prefer pickup? Your order is usually ready in about 20 minutes.";
+    return "We don't offer delivery — we're pickup and dine-in only. Order online and your food is usually ready to collect in about 20 minutes at 128 Ember Lane.";
   }
   if (/(pay|payment|cash|card|cod)/.test(q)) {
-    return "Right now we accept Cash on Delivery and Pay at Restaurant. Online card payments are coming very soon!";
+    return "You can pay at pickup (card or cash at the counter), or pay online by card when placing your order.";
   }
   if (/(refund|cancel|wrong order|complain|problem)/.test(q)) {
     return "Sorry to hear that! For refunds or issues with an order, share your order number (e.g. GF-ABC123) and call us at +1 (555) 012-3456 — the team resolves most issues on the spot.";
@@ -139,5 +139,5 @@ async function ruleBasedReply(text: string): Promise<string> {
   if (/(hi|hello|hey|salam|assalam)/.test(q)) {
     return "Hello! 👋 Ask me about the menu, dietary options, offers, reservations — or paste an order number to track it.";
   }
-  return "I can help with the menu, allergens, current offers, reservations, delivery info, and order tracking (paste a number like GF-ABC123). What would you like to know?";
+  return "I can help with the menu, allergens, current offers, reservations, pickup info, and order tracking (paste a number like GF-ABC123). What would you like to know?";
 }

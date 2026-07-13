@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Banknote, Bike, CreditCard, Loader2, ShoppingBag, Store, TicketPercent } from "lucide-react";
+import { CreditCard, Loader2, ShoppingBag, Store, TicketPercent } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -10,10 +10,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
 import { cartSubtotal, useCart } from "@/lib/cart-store";
 import { formatCurrency } from "@/lib/format";
-import { deliveryFeeFor, FREE_DELIVERY_OVER, round2, TAX_RATE } from "@/lib/pricing";
+import { round2, TAX_RATE } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
 
 const tipOptions = [0, 2, 3, 5];
@@ -27,9 +26,7 @@ export default function CheckoutPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [fulfillment, setFulfillment] = useState<"DELIVERY" | "PICKUP">("DELIVERY");
-  const [address, setAddress] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"COD" | "PAY_AT_RESTAURANT" | "CARD">("COD");
+  const [paymentMethod, setPaymentMethod] = useState<"PAY_AT_RESTAURANT" | "CARD">("PAY_AT_RESTAURANT");
   const [cardEnabled, setCardEnabled] = useState(false);
   useEffect(() => {
     fetch("/api/payments/config")
@@ -46,9 +43,8 @@ export default function CheckoutPage() {
 
   const subtotal = cartSubtotal(lines);
   const discount = coupon?.discount ?? 0;
-  const deliveryFee = deliveryFeeFor(fulfillment, subtotal);
   const tax = round2(Math.max(0, subtotal - discount) * TAX_RATE);
-  const total = round2(subtotal - discount + deliveryFee + tax + tip);
+  const total = round2(subtotal - discount + tax + tip);
 
   async function applyCoupon() {
     if (!couponInput.trim()) return;
@@ -79,10 +75,6 @@ export default function CheckoutPage() {
       toast.error("Please fill in your name, email and phone");
       return;
     }
-    if (fulfillment === "DELIVERY" && !address.trim()) {
-      toast.error("Please enter your delivery address");
-      return;
-    }
     setPlacing(true);
     try {
       const res = await fetch("/api/orders", {
@@ -92,8 +84,7 @@ export default function CheckoutPage() {
           customerName: name,
           customerEmail: email,
           customerPhone: phone,
-          fulfillment,
-          address,
+          fulfillment: "PICKUP",
           paymentMethod,
           notes,
           tip,
@@ -165,55 +156,21 @@ export default function CheckoutPage() {
             </CardContent>
           </Card>
 
-          {/* Fulfillment */}
+          {/* Pickup info */}
           <Card>
             <CardHeader>
-              <CardTitle>Delivery or Pickup</CardTitle>
+              <CardTitle>Pickup</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <button
-                  type="button"
-                  onClick={() => setFulfillment("DELIVERY")}
-                  className={cn(
-                    "flex items-center gap-3 rounded-xl border p-4 text-left transition-colors",
-                    fulfillment === "DELIVERY" ? "border-primary bg-primary/5" : "hover:bg-accent"
-                  )}
-                >
-                  <Bike className="size-6 text-primary" />
-                  <span>
-                    <span className="block font-medium">Delivery</span>
-                    <span className="text-xs text-muted-foreground">
-                      30–45 min · free over {formatCurrency(FREE_DELIVERY_OVER)}
-                    </span>
+              <div className="flex items-center gap-3 rounded-xl border border-primary bg-primary/5 p-4">
+                <Store className="size-6 shrink-0 text-primary" />
+                <span>
+                  <span className="block font-medium">Pickup at The Golden Fork</span>
+                  <span className="text-xs text-muted-foreground">
+                    128 Ember Lane, Springfield · usually ready in ~20 min
                   </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFulfillment("PICKUP")}
-                  className={cn(
-                    "flex items-center gap-3 rounded-xl border p-4 text-left transition-colors",
-                    fulfillment === "PICKUP" ? "border-primary bg-primary/5" : "hover:bg-accent"
-                  )}
-                >
-                  <Store className="size-6 text-primary" />
-                  <span>
-                    <span className="block font-medium">Pickup</span>
-                    <span className="text-xs text-muted-foreground">Ready in ~20 min · no fee</span>
-                  </span>
-                </button>
+                </span>
               </div>
-              {fulfillment === "DELIVERY" && (
-                <div className="space-y-2">
-                  <Label htmlFor="address">Delivery address</Label>
-                  <Textarea
-                    id="address"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="Street, apartment, city…"
-                  />
-                </div>
-              )}
               <div className="space-y-2">
                 <Label htmlFor="notes">Order notes (optional)</Label>
                 <Input
@@ -234,22 +191,6 @@ export default function CheckoutPage() {
             <CardContent className="space-y-3">
               <button
                 type="button"
-                onClick={() => setPaymentMethod("COD")}
-                className={cn(
-                  "flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-colors",
-                  paymentMethod === "COD" ? "border-primary bg-primary/5" : "hover:bg-accent"
-                )}
-              >
-                <Banknote className="size-6 text-primary" />
-                <span>
-                  <span className="block font-medium">
-                    {fulfillment === "DELIVERY" ? "Cash on Delivery" : "Cash on Pickup"}
-                  </span>
-                  <span className="text-xs text-muted-foreground">Pay when your food arrives</span>
-                </span>
-              </button>
-              <button
-                type="button"
                 onClick={() => setPaymentMethod("PAY_AT_RESTAURANT")}
                 className={cn(
                   "flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-colors",
@@ -258,7 +199,7 @@ export default function CheckoutPage() {
               >
                 <Store className="size-6 text-primary" />
                 <span>
-                  <span className="block font-medium">Pay at Restaurant</span>
+                  <span className="block font-medium">Pay at Pickup</span>
                   <span className="text-xs text-muted-foreground">Card or cash at the counter</span>
                 </span>
               </button>
@@ -356,10 +297,6 @@ export default function CheckoutPage() {
                     <span>-{formatCurrency(discount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Delivery</span>
-                  <span>{deliveryFee === 0 ? "Free" : formatCurrency(deliveryFee)}</span>
-                </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Tax (8%)</span>
                   <span>{formatCurrency(tax)}</span>

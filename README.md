@@ -9,14 +9,14 @@ A full-stack restaurant platform built with **Next.js 16 (App Router)**, **TypeS
 - Menu: search, category filter, vegetarian/spicy filters, sorting, ratings
 - Food details: sizes, add-ons, quantity, ingredients, allergens, calories, reviews + review form, related dishes
 - Cart: persistent (localStorage), slide-out sheet, quantity editing
-- Checkout: delivery/pickup, coupons (`WELCOME10`, `FLAT5`, `GOLDEN20`), tips, order notes, Cash on Delivery / Pay at Restaurant
+- Checkout (pickup-only): coupons (`WELCOME10`, `FLAT5`, `GOLDEN20`), tips, order notes, pay at pickup or online by card
 - Order tracking: live status timeline with polling (`/track`, try `GF-DEMO01`)
 - Table reservations with date/time/party-size picker
 - **AI support chat ("Forky")**: order-status lookup, menu/allergen/coupon/hours answers. Rule-based out of the box; plugs into an LLM automatically when `AI_GATEWAY_API_KEY` or `OPENAI_API_KEY` is set.
 
 **Admin** (`/admin` — protected by staff login; demo credentials `admin@goldenfork.dev` / `admin123`)
 - Dashboard: revenue (all-time/7-day/today), active orders, pending reservations, average rating, best sellers, recent orders
-- Orders: full table with status workflow (Received → Confirmed → Preparing → Ready → Out for Delivery → Delivered / Cancelled)
+- Orders: full table with status workflow (Received → Confirmed → Preparing → Ready → Picked Up / Cancelled)
 - Menu management: add items, toggle availability, feature items, safe delete (items with order history are hidden, not deleted)
 - Reservations: confirm / seat / complete / cancel workflow
 
@@ -67,8 +67,9 @@ See `.env.example`. Highlights:
 
 ## Roadmap (from the full spec)
 
-- Customer accounts (registration, order history, saved addresses) — admin login is done
-- PayPal, wallets, gift cards (Stripe card payments + COD already work)
-- Real-time order updates (currently 8s polling), driver GPS tracking
+- Customer accounts (registration, order history) — admin login is done
+- PayPal, wallets, gift cards (Stripe card payments + pay-at-pickup already work)
+- Real-time order updates (currently 8s polling)
+- Delivery support (deliberately disabled — the restaurant is pickup & dine-in only)
 - Loyalty points, gift cards, email/SMS notifications (Resend/Twilio)
 - Inventory & employee management, multi-language (i18n), PWA

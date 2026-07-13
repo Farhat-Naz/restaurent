@@ -165,10 +165,7 @@ async function main() {
       customerName: "Ayesha Khan",
       customerEmail: "ayesha@example.com",
       customerPhone: "+1 555 0101",
-      fulfillment: "DELIVERY",
-      address: "42 Maple Street, Springfield",
-      status: "OUT_FOR_DELIVERY",
-      paymentMethod: "COD",
+      status: "READY",
       lines: [
         { slug: "golden-smash-burger", qty: 2 },
         { slug: "lemon-mint-cooler", qty: 2 },
@@ -179,10 +176,7 @@ async function main() {
       customerName: "Daniel Reyes",
       customerEmail: "daniel@example.com",
       customerPhone: "+1 555 0102",
-      fulfillment: "PICKUP",
-      address: null,
       status: "PREPARING",
-      paymentMethod: "PAY_AT_RESTAURANT",
       lines: [
         { slug: "margherita-classica", qty: 1 },
         { slug: "classic-tiramisu", qty: 2 },
@@ -193,10 +187,7 @@ async function main() {
       customerName: "Sofia Marino",
       customerEmail: "sofia@example.com",
       customerPhone: "+1 555 0103",
-      fulfillment: "DELIVERY",
-      address: "7 Harbor View, Springfield",
       status: "DELIVERED",
-      paymentMethod: "COD",
       lines: [
         { slug: "seafood-linguine", qty: 1 },
         { slug: "molten-chocolate-cake", qty: 1 },
@@ -218,22 +209,19 @@ async function main() {
       };
     });
     const subtotal = orderItems.reduce((s, i) => s + i.lineTotal, 0);
-    const deliveryFee = o.fulfillment === "DELIVERY" && subtotal < 35 ? 3.99 : 0;
     const tax = Math.round(subtotal * 0.08 * 100) / 100;
-    const total = subtotal + deliveryFee + tax;
+    const total = subtotal + tax;
     await db.order.create({
       data: {
         orderNumber: o.orderNumber,
         customerName: o.customerName,
         customerEmail: o.customerEmail,
         customerPhone: o.customerPhone,
-        fulfillment: o.fulfillment,
-        address: o.address,
+        fulfillment: "PICKUP",
         status: o.status,
-        paymentMethod: o.paymentMethod,
+        paymentMethod: "PAY_AT_RESTAURANT",
         paymentStatus: o.status === "DELIVERED" ? "PAID" : "PENDING",
         subtotal,
-        deliveryFee,
         tax,
         total,
         items: { create: orderItems },

@@ -1,11 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import {
-  couponDiscount,
-  deliveryFeeFor,
-  round2,
-  TAX_RATE,
-} from "@/lib/pricing";
+import { couponDiscount, round2, TAX_RATE } from "@/lib/pricing";
 import { getStripe } from "@/lib/stripe";
 
 type IncomingLine = {
@@ -19,9 +14,7 @@ type IncomingOrder = {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
-  fulfillment: "DELIVERY" | "PICKUP";
-  address?: string;
-  paymentMethod: "COD" | "PAY_AT_RESTAURANT" | "CARD";
+  paymentMethod: "PAY_AT_RESTAURANT" | "CARD";
   notes?: string;
   tip?: number;
   couponCode?: string;
@@ -49,10 +42,7 @@ export async function POST(req: Request) {
   if (!Array.isArray(body.lines) || body.lines.length === 0) {
     return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
   }
-  if (body.fulfillment === "DELIVERY" && !body.address?.trim()) {
-    return NextResponse.json({ error: "Delivery address is required" }, { status: 400 });
-  }
-  if (!["COD", "PAY_AT_RESTAURANT", "CARD"].includes(body.paymentMethod)) {
+  if (!["PAY_AT_RESTAURANT", "CARD"].includes(body.paymentMethod)) {
     return NextResponse.json({ error: "Unsupported payment method" }, { status: 400 });
   }
   const stripe = body.paymentMethod === "CARD" ? getStripe() : null;
@@ -141,10 +131,9 @@ export async function POST(req: Request) {
     }
   }
 
-  const deliveryFee = deliveryFeeFor(body.fulfillment, subtotal);
   const tax = round2((subtotal - discount) * TAX_RATE);
   const tip = round2(Math.max(0, Math.min(500, Number(body.tip) || 0)));
-  const total = round2(subtotal - discount + deliveryFee + tax + tip);
+  const total = round2(subtotal - discount + tax + tip);
 
   // Retry a few times in the unlikely event of an order-number collision
   for (let attempt = 0; attempt < 5; attempt++) {
@@ -155,12 +144,10 @@ export async function POST(req: Request) {
           customerName: body.customerName.trim(),
           customerEmail: body.customerEmail.trim(),
           customerPhone: body.customerPhone.trim(),
-          fulfillment: body.fulfillment,
-          address: body.fulfillment === "DELIVERY" ? body.address?.trim() : null,
+          fulfillment: "PICKUP",
           paymentMethod: body.paymentMethod,
           notes: body.notes?.trim() || null,
           subtotal,
-          deliveryFee,
           tax,
           discount,
           tip,

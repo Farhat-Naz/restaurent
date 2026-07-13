@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s | The Golden Fork",
   },
   description:
-    "Order online from The Golden Fork: fresh burgers, wood-fired pizza, pasta and more. Delivery, pickup, and table reservations.",
+    "Order online from The Golden Fork: fresh burgers, wood-fired pizza, pasta and more. Pickup orders and table reservations.",
   openGraph: {
     title: "The Golden Fork",
     description: "Honest food, warm hospitality. Order online or reserve a table.",
