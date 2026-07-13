@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  name         String
+  phone        String?
+  passwordHash String?
+  role         String        @default("CUSTOMER") // CUSTOMER | ADMIN | CHEF | CASHIER | WAITER | DRIVER
+  rewardPoints Int           @default(0)
+  createdAt    DateTime      @default(now())
+  orders       Order[]
+  reservations Reservation[]
+  reviews      Review[]
+}
+
+model Category {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  slug      String     @unique
+  sortOrder Int        @default(0)
+  items     MenuItem[]
+}
+
+model MenuItem {
+  id          String      @id @default(cuid())
+  name        String
+  slug        String      @unique
+  description String
+  price       Float
+  image       String? // emoji or image URL
+  calories    Int?
+  ingredients String? // comma-separated
+  allergens   String? // comma-separated
+  isVeg       Boolean     @default(false)
+  isSpicy     Boolean     @default(false)
+  isFeatured  Boolean     @default(false)
+  isAvailable Boolean     @default(true)
+  categoryId  String
+  category    Category    @relation(fields: [categoryId], references: [id])
+  sizes       String? // JSON: [{name, priceDelta}]
+  addons      String? // JSON: [{name, price}]
+  createdAt   DateTime    @default(now())
+  orderItems  OrderItem[]
+  reviews     Review[]
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  orderNumber     String      @unique
+  userId          String?
+  user            User?       @relation(fields: [userId], references: [id])
+  customerName    String
+  customerEmail   String
+  customerPhone   String
+  fulfillment     String      @default("DELIVERY") // DELIVERY | PICKUP
+  address         String?
+  status          String      @default("RECEIVED") // RECEIVED | CONFIRMED | PREPARING | READY | OUT_FOR_DELIVERY | DELIVERED | CANCELLED
+  paymentMethod   String      @default("COD") // COD | CARD | PAY_AT_RESTAURANT
+  paymentStatus   String      @default("PENDING") // PENDING | PAID | REFUNDED
+  subtotal        Float
+  deliveryFee     Float       @default(0)
+  tax             Float       @default(0)
+  discount        Float       @default(0)
+  tip             Float       @default(0)
+  total           Float
+  couponCode      String?
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  items           OrderItem[]
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  name       String
+  size       String?
+  addons     String? // JSON array of names
+  unitPrice  Float
+  quantity   Int
+  lineTotal  Float
+}
+
+model Reservation {
+  id             String   @id @default(cuid())
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id])
+  name           String
+  email          String
+  phone          String
+  date           String // YYYY-MM-DD
+  time           String // HH:mm
+  guests         Int
+  specialRequest String?
+  status         String   @default("PENDING") // PENDING | CONFIRMED | CANCELLED | SEATED | COMPLETED
+  createdAt      DateTime @default(now())
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  authorName String
+  rating     Int
+  comment    String
+  createdAt  DateTime @default(now())
+}
+
+model Coupon {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  type        String   @default("PERCENT") // PERCENT | FIXED
+  value       Float
+  minSubtotal Float    @default(0)
+  isActive    Boolean  @default(true)
+  expiresAt   DateTime?
+}
